@@ -1,5 +1,6 @@
 from __future__ import annotations 
 from collections.abc import Callable 
+import math 
 
 class Value:
     type Scalar = int | float 
@@ -133,3 +134,16 @@ class Value:
         for n in reversed(topo):
             n._backward() 
 
+    def exp(self) -> Value:
+        out = Value(math.exp(self.data), (self,), 'exp') 
+        def _backward():
+            self.grad += out.data * out.grad
+        out._backward = _backward
+        return out  
+
+    def log(self) -> Value:
+        out = Value(math.log(self.data), (self,), 'log') 
+        def _backward():
+            self.grad += (1/self.data) * out.grad 
+        out._backward = _backward
+        return out 

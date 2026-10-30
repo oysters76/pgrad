@@ -96,7 +96,33 @@ def test_more_ops():
     assert abs(bmg.grad - bpt.grad.item()) < tol
     print("test_more_ops passed")
 
+
+def test_log_with_finite_differences(eps=0.01, threshold=1e-2):
+    a = Value(0.5) 
+    out = a.log() 
+    out.backward() 
+
+    a_nudged = Value(0.5 + eps) 
+    out_nudged = a_nudged.log() 
+
+    fs = (out_nudged.data - out.data)/eps 
+
+    assert abs(fs-a.grad) < threshold, "failed test-log-finite-diff"
+
+def test_exp_with_finite_differences(eps=0.01, threshold=1e-2):
+    a = Value(0.5) 
+    out = a.exp() 
+    out.backward() 
+
+    a_nudged = Value(0.5 + eps) 
+    out_nudged = a_nudged.exp() 
+
+    fs = (out_nudged.data - out.data)/eps 
+    assert abs(fs-a.grad) < threshold, "failed test-exp-finite-diff"
+
 if __name__ == '__main__':
     test_simple_case()
     test_sanity_check() 
     test_more_ops()
+    test_log_with_finite_differences(eps=0.001)
+    test_exp_with_finite_differences(eps=0.001)
